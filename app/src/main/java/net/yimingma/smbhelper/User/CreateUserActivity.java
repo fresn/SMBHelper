@@ -3,12 +3,13 @@ package net.yimingma.smbhelper.User;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import net.yimingma.smbhelper.R;
 import net.yimingma.smbhelper.service.SMBHelperBackgroundService;
@@ -46,7 +47,19 @@ public class CreateUserActivity extends AppCompatActivity {
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myBind.signUp(editTextEmail.getText().toString(),editTextPassword.getText().toString());
+                myBind.signUp(editTextEmail.getText().toString(),editTextPassword.getText().toString())
+                .addOnSuccessListener(new SMBHelperBackgroundService.OnSuccessListener() {
+                    @Override
+                    public void onSuccess() {
+                        finish();
+                    }
+                })
+                .addOnFailureListener(new SMBHelperBackgroundService.OnFailureListener() {
+                    @Override
+                    public void onFailure() {
+                        Toast.makeText(getApplicationContext(), "Faile to create user", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }

@@ -9,20 +9,14 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-
-import com.google.android.gms.tasks.OnCompleteListener;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 import com.google.firebase.firestore.DocumentReference;
-
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import net.yimingma.smbhelper.SMB.Customer;
-
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,7 +28,7 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
     FirebaseAuth firebaseAuth;
 
     //event listeners
-    Set<OnUserStateChangeListeners> userChangeListeners=new HashSet<OnUserStateChangeListeners>();
+    Set<OnUserStateChangeListeners> userChangeListeners = new HashSet<OnUserStateChangeListeners>();
 
     private String TAG = "SMBHelperBackgroundService";
 
@@ -144,11 +138,11 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
         Log.d(TAG, "onAuthStateChanged: ");
-        for (OnUserStateChangeListeners listener:userChangeListeners){
-            if (firebaseAuth.getCurrentUser()!=null){
+        for (OnUserStateChangeListeners listener : userChangeListeners) {
+            if (firebaseAuth.getCurrentUser() != null) {
                 Log.d(TAG, "onAuthStateChanged: login");
                 listener.onLogIn(firebaseAuth.getCurrentUser());
-            }else {
+            } else {
                 Log.d(TAG, "onAuthStateChanged: signOut");
                 listener.onSignOut();
             }
@@ -156,16 +150,12 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
     }
 
 
-
-
-
-
     //Binder class
     public class MyBind extends Binder {
 
         public void newCustomer(Customer customer) {
             db.collection("Customers").add(customer)
-                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    .addOnCompleteListener(new com.google.android.gms.tasks.OnCompleteListener<DocumentReference>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentReference> task) {
 
@@ -173,28 +163,65 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
                     });
         }
 
-        public void login(String email, String password) {
-            firebaseAuth.signInWithEmailAndPassword(email, password);
+        public ListenerHolder login(String email, String password) {
+
+            final ListenerHolder listenerHolder=new ListenerHolder();
+            firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
+                    new com.google.android.gms.tasks.OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()){
+                                for (OnSuccessListener onSuccessListener:listenerHolder.onSuccessListeners){
+                                    onSuccessListener.onSuccess();
+                                }
+                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
+                                    onCompleteListener.onComplete(true);
+                                }
+                            }else {
+                                for (OnFailureListener onFailureListener:listenerHolder.onFailureListeners){
+                                    onFailureListener.onFailure();
+                                }
+                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
+                                    onCompleteListener.onComplete(false);
+                                }
+                            }
+                        }
+                    }
+            );
+            return listenerHolder;
         }
 
-        public void signUp(String email, String password) {
+        public ListenerHolder signUp(String email, String password) {
+            final ListenerHolder listenerHolder=new ListenerHolder();
             Log.d(TAG, "signUp: ");
             firebaseAuth
                     .createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    .addOnCompleteListener(new com.google.android.gms.tasks.OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "onComplete: create user success");
-//                                onAuthStateChanged(firebaseAuth);
+                                for (OnSuccessListener onSuccessListener:listenerHolder.onSuccessListeners){
+                                    onSuccessListener.onSuccess();
+                                }
+                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
+                                    onCompleteListener.onComplete(true);
+                                }
                             } else {
+                                for (OnFailureListener onFailureListener:listenerHolder.onFailureListeners){
+                                    onFailureListener.onFailure();
+                                }
+                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
+                                    onCompleteListener.onComplete(false);
+                                }
                                 Log.d(TAG, "onComplete: create user failure");
                             }
                         }
                     });
+            return listenerHolder;
         }
 
-        public void logOut(){
+        public void logOut() {
             firebaseAuth.signOut();
         }
 
@@ -202,15 +229,47 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
             return firebaseAuth.getCurrentUser() != null;
         }
 
-        public void  addOnUserStateChangeListeners(OnUserStateChangeListeners onUserStateChangeListeners){
+        public void addOnUserStateChangeListeners(OnUserStateChangeListeners onUserStateChangeListeners) {
             userChangeListeners.add(onUserStateChangeListeners);
         }
 
     }
 
+    public class ListenerHolder {
+        Set<OnCompleteListener> onCompleteListeners = new HashSet<>();
+        Set<OnFailureListener> onFailureListeners = new HashSet<>();
+        Set<OnSuccessListener> onSuccessListeners = new HashSet<>();
+
+        public ListenerHolder addOnCompleteListener(OnCompleteListener onCompleteListener) {
+            onCompleteListeners.add(onCompleteListener);
+            return this;
+        }
+        public ListenerHolder addOnFailureListener(OnFailureListener onFailureListener){
+            onFailureListeners.add(onFailureListener);
+            return this;
+        }
+        public ListenerHolder addOnSuccessListener(OnSuccessListener onSuccessListener){
+            onSuccessListeners.add(onSuccessListener);
+            return this;
+        }
+    }
+
+    public interface OnCompleteListener {
+        public void onComplete(Boolean isSuccess);
+    }
+
+    public interface OnSuccessListener {
+        public void onSuccess();
+    }
+
+    public interface OnFailureListener {
+        public void onFailure();
+    }
+
 
     public interface OnUserStateChangeListeners {
         public void onLogIn(FirebaseUser firebaseUser);
+
         public void onSignOut();
     }
 }

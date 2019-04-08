@@ -14,12 +14,12 @@ import net.yimingma.smbhelper.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProcessFragment extends Fragment {
+public class OrderFragment extends Fragment {
 
 
-    private String TAG="ProcessFragment";
+    private String TAG="OrderFragment";
 
-    public ProcessFragment() {
+    public OrderFragment() {
         // Required empty public constructor
     }
 
@@ -30,7 +30,7 @@ public class ProcessFragment extends Fragment {
         getContext();
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_process, container, false);
+        return inflater.inflate(R.layout.fragment_order, container, false);
     }
 
     @Override

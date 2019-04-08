@@ -18,14 +18,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
-
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import net.yimingma.smbhelper.Fragments.DashboardFragment;
 import net.yimingma.smbhelper.Fragments.DashboardUserGuideFragment;
-import net.yimingma.smbhelper.Fragments.ProcessFragment;
+import net.yimingma.smbhelper.Fragments.OrderFragment;
 import net.yimingma.smbhelper.Fragments.SettingNavFragment;
 import net.yimingma.smbhelper.service.SMBHelperBackgroundService;
 
@@ -175,6 +174,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
 
     void lunchSettingScream() {
+
+
         Fragment currentFragment = mFragmentManager.findFragmentByTag("Setting");
         mToolbar.setTitle("Setting");
         if (currentFragment == null) {
@@ -183,10 +184,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     void lunchProcessScream() {
-        Fragment currentFragment = mFragmentManager.findFragmentByTag("Process");
-        mToolbar.setTitle("Process");
+        Fragment currentFragment = mFragmentManager.findFragmentByTag("Order");
+        mToolbar.setTitle("Order");
         if (currentFragment == null) {
-            mFragmentManager.beginTransaction().replace(R.id.main_content_layout, new ProcessFragment(), "Process").commit();
+            mFragmentManager.beginTransaction().replace(R.id.main_content_layout, new OrderFragment(), "Process").commit();
         }
     }
 
@@ -213,8 +214,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
 
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         Log.d(TAG, "onActivityResult: ");
@@ -222,23 +221,37 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
 
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Log.d(TAG, "onNavigationItemSelected: ");
         switch (item.getItemId()) {
             case R.id.navigation_setting:
+
                 Log.d(TAG, "onNavigationItemSelected: setting");
-                lunchSettingScream();
-                return true;
+                if (myServiceBind != null && myServiceBind.isLogin()) {
+                    lunchSettingScream();
+                    return true;
+                } else {
+                    Toast.makeText(getApplicationContext(),"Please login",Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
+
             case R.id.navigation_dashboard:
                 Log.d(TAG, "onNavigationItemSelected: dashboard");
                 lunchDashboardScream();
                 return true;
+
+
             case R.id.navigation_process:
                 Log.d(TAG, "onNavigationItemSelected: process");
-                lunchProcessScream();
-                return true;
+                if (myServiceBind != null && myServiceBind.isLogin()) {
+                    lunchProcessScream();
+                    return true;
+                }else{
+                    Toast.makeText(getApplicationContext(),"Please login",Toast.LENGTH_LONG).show();
+                    return false;
+                }
         }
         return true;
     }

@@ -15,10 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import net.yimingma.smbhelper.R;
 import net.yimingma.smbhelper.User.CreateUserActivity;
+import net.yimingma.smbhelper.User.LoginActivity;
 import net.yimingma.smbhelper.service.SMBHelperBackgroundService;
 
 
@@ -29,7 +29,7 @@ public class DashboardUserGuideFragment extends Fragment {
 
     private String TAG = "DashboardUserGuideFragment";
 
-    Button buttonCreateUser;
+    Button buttonCreateUser,buttonLogin;
     SMBHelperBackgroundService.MyBind myBind;
 
     ServiceConnection serviceConnection=new ServiceConnection() {
@@ -63,6 +63,7 @@ public class DashboardUserGuideFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         buttonCreateUser=(Button) view.findViewById(R.id.dashboard_guide_button_create_user);
+        buttonLogin=(Button) view.findViewById(R.id.dashboard_guide_login);
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -79,6 +80,15 @@ public class DashboardUserGuideFragment extends Fragment {
             }
         });
 
+        buttonLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent loginIntent=new Intent(getContext(), LoginActivity.class);
+                startActivityForResult(loginIntent,0);
+
+                Log.d(TAG, "onClick: Login");
+            }
+        });
 
 
         super.onStart();

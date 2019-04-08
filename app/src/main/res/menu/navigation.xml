@@ -7,8 +7,8 @@
         android:title="@string/title_dashboard" />
     <item
         android:id="@+id/navigation_process"
-        android:icon="@drawable/ic_process"
-        android:title="@string/title_process"/>
+        android:icon="@drawable/ic_order"
+        android:title="@string/title_order" />
 
     <item
         android:id="@+id/navigation_setting"
