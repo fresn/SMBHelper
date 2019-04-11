@@ -25,6 +25,11 @@ public class ProductImagesAdapter extends RecyclerView.Adapter<ProductImagesAdap
         this.images = images;
     }
 
+    public void updateDate(Uri[] images){
+        this.images=images;
+        this.notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ProductImagesAdapter.ProductImageHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -47,7 +52,7 @@ public class ProductImagesAdapter extends RecyclerView.Adapter<ProductImagesAdap
 
     @Override
     public int getItemCount() {
-        Log.d(TAG, "getItemCount: ");
+        Log.d(TAG, "getItemCount: "+ images.length);
         return images.length ;
     }
 

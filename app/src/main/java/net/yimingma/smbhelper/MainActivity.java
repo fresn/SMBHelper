@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import net.yimingma.smbhelper.Fragments.DashboardFragment;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected: ");
             myServiceBind = (SMBHelperBackgroundService.MyBind) service;
-
+            onStart();
         }
 
         @Override
@@ -139,6 +140,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         mToolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(mToolbar);
 
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_dashboard);
+
 
     }
 
@@ -147,8 +151,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Log.d(TAG, "onStart: ");
 
         //mFragmentManager.beginTransaction().add(R.id.main_content_layout,new DashboardUserGuideFragment(),"GuideFragment").commit();
-        bottomNavigationView.setOnNavigationItemSelectedListener(this);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_dashboard);
+
+        bottomNavigationView.setSelectedItemId(bottomNavigationView.getSelectedItemId());
         super.onStart();
     }
 
@@ -223,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Log.d(TAG, "onNavigationItemSelected: ");
+
         switch (item.getItemId()) {
             case R.id.navigation_setting:
 

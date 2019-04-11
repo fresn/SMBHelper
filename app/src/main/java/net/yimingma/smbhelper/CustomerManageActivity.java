@@ -17,7 +17,7 @@ public class CustomerManageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_customer_manage);
 
         buttonNewCustomer=findViewById(R.id.button_new_customer);
-        buttonLogin=(Button) buttonLogin.findViewById(R.id.dashboard_guide_login);
+        buttonLogin=(Button) findViewById(R.id.dashboard_guide_login);
 
     }
 

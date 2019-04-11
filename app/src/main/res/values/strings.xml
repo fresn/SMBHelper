@@ -6,10 +6,17 @@
     <string name="title_setting">Setting</string>
     <string name="title_process">Process</string>
     <string name="title_order">Order</string>
-
+    <string name="new_product_title">Title</string>
+    <string name="new_product_description">Description</string>
+    <string name="new_product_tax">Tax</string>
+    <string name="new_product_cost">Cost</string>
+    <string name="new_product_price">Price</string>
+    <string name="new_product_inventory">Inventory Count</string>
+    <string name="new_product_submit">Create Product</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="setting_product">Product</string>
+    <string name="setting_customer">Customer</string>
     <string name="guide">Create User To Start \nIf You Have Account, Please Login</string>
 
 
