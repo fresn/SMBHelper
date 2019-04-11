@@ -165,34 +165,36 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
 
         public ListenerHolder login(String email, String password) {
 
-            final ListenerHolder listenerHolder=new ListenerHolder();
-            firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
-                    new com.google.android.gms.tasks.OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if(task.isSuccessful()){
-                                for (OnSuccessListener onSuccessListener:listenerHolder.onSuccessListeners){
-                                    onSuccessListener.onSuccess();
-                                }
-                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
-                                    onCompleteListener.onComplete(true);
-                                }
-                            }else {
-                                for (OnFailureListener onFailureListener:listenerHolder.onFailureListeners){
-                                    onFailureListener.onFailure();
-                                }
-                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
-                                    onCompleteListener.onComplete(false);
+            final ListenerHolder listenerHolder = new ListenerHolder();
+            firebaseAuth
+                    .signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(
+                            new com.google.android.gms.tasks.OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        for (OnSuccessListener onSuccessListener : listenerHolder.onSuccessListeners) {
+                                            onSuccessListener.onSuccess();
+                                        }
+                                        for (OnCompleteListener onCompleteListener : listenerHolder.onCompleteListeners) {
+                                            onCompleteListener.onComplete(true);
+                                        }
+                                    } else {
+                                        for (OnFailureListener onFailureListener : listenerHolder.onFailureListeners) {
+                                            onFailureListener.onFailure();
+                                        }
+                                        for (OnCompleteListener onCompleteListener : listenerHolder.onCompleteListeners) {
+                                            onCompleteListener.onComplete(false);
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
-            );
+                    );
             return listenerHolder;
         }
 
         public ListenerHolder signUp(String email, String password) {
-            final ListenerHolder listenerHolder=new ListenerHolder();
+            final ListenerHolder listenerHolder = new ListenerHolder();
             Log.d(TAG, "signUp: ");
             firebaseAuth
                     .createUserWithEmailAndPassword(email, password)
@@ -201,17 +203,17 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "onComplete: create user success");
-                                for (OnSuccessListener onSuccessListener:listenerHolder.onSuccessListeners){
+                                for (OnSuccessListener onSuccessListener : listenerHolder.onSuccessListeners) {
                                     onSuccessListener.onSuccess();
                                 }
-                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
+                                for (OnCompleteListener onCompleteListener : listenerHolder.onCompleteListeners) {
                                     onCompleteListener.onComplete(true);
                                 }
                             } else {
-                                for (OnFailureListener onFailureListener:listenerHolder.onFailureListeners){
+                                for (OnFailureListener onFailureListener : listenerHolder.onFailureListeners) {
                                     onFailureListener.onFailure();
                                 }
-                                for (OnCompleteListener onCompleteListener:listenerHolder.onCompleteListeners){
+                                for (OnCompleteListener onCompleteListener : listenerHolder.onCompleteListeners) {
                                     onCompleteListener.onComplete(false);
                                 }
                                 Log.d(TAG, "onComplete: create user failure");
@@ -244,11 +246,13 @@ public class SMBHelperBackgroundService extends Service implements FirebaseAuth.
             onCompleteListeners.add(onCompleteListener);
             return this;
         }
-        public ListenerHolder addOnFailureListener(OnFailureListener onFailureListener){
+
+        public ListenerHolder addOnFailureListener(OnFailureListener onFailureListener) {
             onFailureListeners.add(onFailureListener);
             return this;
         }
-        public ListenerHolder addOnSuccessListener(OnSuccessListener onSuccessListener){
+
+        public ListenerHolder addOnSuccessListener(OnSuccessListener onSuccessListener) {
             onSuccessListeners.add(onSuccessListener);
             return this;
         }
