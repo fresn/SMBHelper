@@ -1,4 +1,4 @@
-package net.yimingma.smbhelper;
+package net.yimingma.smbhelper.Product;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -8,11 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import net.yimingma.smbhelper.SMB.Product;
+import net.yimingma.smbhelper.R;
 
 
 public class ProductImagesAdapter extends RecyclerView.Adapter<ProductImagesAdapter.ProductImageHolder> {
@@ -32,7 +31,7 @@ public class ProductImagesAdapter extends RecyclerView.Adapter<ProductImagesAdap
 
     @NonNull
     @Override
-    public ProductImagesAdapter.ProductImageHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public ProductImageHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         Log.d(TAG, "onCreateViewHolder: ");
         return new ProductImageHolder(
                 LayoutInflater

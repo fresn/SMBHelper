@@ -14,12 +14,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".NewProductActivity"
+        <activity android:name=".Product.NewProductActivity"
             android:windowSoftInputMode="adjustPan"></activity>
         <activity android:name=".User.LoginActivity" />
         <activity android:name=".User.CreateUserActivity" />
         <activity
-            android:name=".NewCustomerActivity"
+            android:name=".Customer.NewCustomerActivity"
             android:parentActivityName=".MainActivity" />
 
         <service
@@ -27,7 +27,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".CustomerManageActivity" />
+        <activity android:name=".Customer.CustomerManageActivity" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">

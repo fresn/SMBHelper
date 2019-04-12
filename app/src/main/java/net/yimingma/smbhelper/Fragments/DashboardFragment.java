@@ -3,7 +3,6 @@ package net.yimingma.smbhelper.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import net.yimingma.smbhelper.NewProductActivity;
+import net.yimingma.smbhelper.Product.NewProductActivity;
 import net.yimingma.smbhelper.R;
 
 

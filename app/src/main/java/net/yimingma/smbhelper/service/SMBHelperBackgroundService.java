@@ -9,18 +9,20 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import net.yimingma.smbhelper.SMB.Customer;
+import net.yimingma.smbhelper.Customer.Customer;
 import net.yimingma.smbhelper.SMB.Product;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -176,8 +178,61 @@ public class SMBHelperBackgroundService extends Service {
         }
 
 
-        public void newCustomer(Customer customer) {
+        public TypeListenerHolder<Customer[]> requireCustomers() {
+            Log.d(TAG, "requireCustomers: ");
+            final TypeListenerHolder<Customer[]> customerTypeListenerHolder = new TypeListenerHolder<Customer[]>();
+            customers.get()
+                    .addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot>() {
+                        ArrayList<Customer> customers = new ArrayList<>();
 
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            Log.d(TAG, "onSuccess: ");
+                            if (!queryDocumentSnapshots.isEmpty()) {
+
+                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    customers.add(documentSnapshot.toObject(Customer.class));
+                                }
+                                customerTypeListenerHolder.success(customers.toArray(new Customer[queryDocumentSnapshots.size()]));
+                            }else{
+                                Log.d(TAG, "onSuccess: empty result");
+                            }
+                        }
+                    }).addOnCompleteListener(
+                    new com.google.android.gms.tasks.OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            Log.d(TAG, "onComplete: "+task.isSuccessful());
+                        }
+                    }
+            );
+            return customerTypeListenerHolder;
+        }
+
+        public TypeListenerHolder<Customer> getCustomer(String id) {
+            final TypeListenerHolder<Customer> customerTypeListenerHolder = new TypeListenerHolder<>();
+            customers.document(id).get().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    customerTypeListenerHolder.success(documentSnapshot.toObject(Customer.class));
+                }
+            });
+            return customerTypeListenerHolder;
+        }
+
+        public ListenerHolder newCustomer(Customer customer) {
+            final ListenerHolder listenerHolder = new ListenerHolder();
+            customers.add(customer).addOnCompleteListener(new com.google.android.gms.tasks.OnCompleteListener<DocumentReference>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentReference> task) {
+                    if (task.isSuccessful()) {
+                        listenerHolder.success();
+                    } else {
+                        listenerHolder.failure();
+                    }
+                }
+            });
+            return listenerHolder;
         }
 
         public ListenerHolder login(String email, String password) {
@@ -281,6 +336,45 @@ public class SMBHelperBackgroundService extends Service {
         }
     }
 
+    public class TypeListenerHolder<T> {
+        Set<OnTypeCompleteListener> onCompleteListeners = new HashSet<>();
+        Set<OnFailureListener> onFailureListeners = new HashSet<>();
+        Set<OnTypeSuccessListener> onSuccessListeners = new HashSet<>();
+
+        public TypeListenerHolder<T> addOnCompleteListener(OnTypeCompleteListener<T> onCompleteListener) {
+            onCompleteListeners.add(onCompleteListener);
+            return this;
+        }
+
+        public TypeListenerHolder<T> addOnFailureListener(OnFailureListener onFailureListener) {
+            onFailureListeners.add(onFailureListener);
+            return this;
+        }
+
+        public TypeListenerHolder<T> addOnSuccessListener(OnTypeSuccessListener<T> onSuccessListener) {
+            onSuccessListeners.add(onSuccessListener);
+            return this;
+        }
+
+        void success(T data) {
+            for (OnTypeSuccessListener<T> onSuccessListener : this.onSuccessListeners) {
+                onSuccessListener.onSuccess(data);
+            }
+            for (OnTypeCompleteListener<T> onCompleteListener : this.onCompleteListeners) {
+                onCompleteListener.onComplete(true, data);
+            }
+        }
+
+        void failure() {
+            for (OnFailureListener onFailureListener : this.onFailureListeners) {
+                onFailureListener.onFailure();
+            }
+            for (OnTypeCompleteListener<T> onCompleteListener : this.onCompleteListeners) {
+                onCompleteListener.onComplete(false, null);
+            }
+        }
+    }
+
     public class ListenerHolder {
         Set<OnCompleteListener> onCompleteListeners = new HashSet<>();
         Set<OnFailureListener> onFailureListeners = new HashSet<>();
@@ -320,8 +414,16 @@ public class SMBHelperBackgroundService extends Service {
         }
     }
 
-    public interface OnCompleteListener {
+    public interface OnCompleteListener<T> {
         public void onComplete(Boolean isSuccess);
+    }
+
+    public interface OnTypeCompleteListener<T> {
+        public void onComplete(Boolean isSuccess, T data);
+    }
+
+    public interface OnTypeSuccessListener<T> {
+        public void onSuccess(T data);
     }
 
     public interface OnSuccessListener {

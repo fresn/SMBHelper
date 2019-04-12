@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import net.yimingma.smbhelper.CustomerManageActivity;
+import net.yimingma.smbhelper.Customer.CustomerManageActivity;
 import net.yimingma.smbhelper.R;
 
 

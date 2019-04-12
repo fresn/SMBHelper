@@ -18,6 +18,14 @@
     <string name="setting_product">Product</string>
     <string name="setting_customer">Customer</string>
     <string name="guide">Create User To Start \nIf You Have Account, Please Login</string>
+    <string name="addcustomericon">addCustomerIcon</string>
+    <string name="new_customer">New Customer</string>
+    <string name="back_icon">back icon</string>
+    <string name="new_customer_submit">Create Customer</string>
+    <string name="temp_humen_name">First Last</string>
+    <string name="customer_manage_orders_tag">Orders</string>
+    <string name="temp_number">0</string>
+    <string name="avatar">Avatar</string>
 
 
 </resources>

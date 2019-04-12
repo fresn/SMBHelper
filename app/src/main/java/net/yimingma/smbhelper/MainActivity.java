@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             case R.id.menu_logout:
                 Log.d(TAG, "onOptionsItemSelected: logout");
                 myServiceBind.logOut();
+                bottomNavigationView.setSelectedItemId(R.id.navigation_dashboard);
                 onStart();
                 return true;
         }

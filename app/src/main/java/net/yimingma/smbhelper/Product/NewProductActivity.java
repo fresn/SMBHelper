@@ -1,4 +1,4 @@
-package net.yimingma.smbhelper;
+package net.yimingma.smbhelper.Product;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import net.yimingma.smbhelper.R;
 import net.yimingma.smbhelper.SMB.Product;
 import net.yimingma.smbhelper.service.SMBHelperBackgroundService;
 import net.yimingma.smbhelper.util.Utils;

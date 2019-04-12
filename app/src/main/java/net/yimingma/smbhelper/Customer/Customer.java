@@ -1,4 +1,4 @@
-package net.yimingma.smbhelper.SMB;
+package net.yimingma.smbhelper.Customer;
 
 import android.util.Log;
 
@@ -7,10 +7,13 @@ import net.yimingma.smbhelper.util.Generators;
 
 public class Customer {
     private String TAG = "Customer";
-    String CusID;
-    String firstName, lastName,state,country, street,timestamp;
+
+    public String firstName, lastName,state,country, street,timestamp;
 
     String avatarUrl;
+    public Customer(){
+
+    }
 
     /**
      *
@@ -24,7 +27,6 @@ public class Customer {
         this.street =street;
         this.country=country;
         this.state=state;
-        this.CusID= Generators.getCustomerID();
         this.firstName = firstName;
         Log.d(TAG, "Customer: ");
         this.lastName = lastName;
