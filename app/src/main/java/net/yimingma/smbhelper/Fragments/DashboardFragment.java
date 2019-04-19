@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import net.yimingma.smbhelper.Product.NewProductActivity;
+import net.yimingma.smbhelper.Order.NewOrderActivity;
 import net.yimingma.smbhelper.R;
 
 
@@ -20,22 +20,18 @@ import net.yimingma.smbhelper.R;
  */
 public class DashboardFragment extends Fragment {
 
-    Button buttonLoadImage,buttonNewProduct;
-    final int CHOOSE_IMAGES=119;
+    Button buttonLoadImage, buttonNewProduct;
+    final int CHOOSE_IMAGES = 119;
 
     public DashboardFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         return inflater.inflate(R.layout.fragment_dashboard, container, false);
-
-
     }
 
     @Override
@@ -43,27 +39,29 @@ public class DashboardFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
-        buttonLoadImage=view.findViewById(R.id.load_image);
-        buttonNewProduct=view.findViewById(R.id.new_product);
+        buttonLoadImage = view.findViewById(R.id.load_image);
+        buttonNewProduct = view.findViewById(R.id.new_product);
 
         buttonLoadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intentLoadImage=new Intent();
+                Intent intentLoadImage = new Intent();
                 intentLoadImage.setType("image/*");
-                intentLoadImage.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);
+                intentLoadImage.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 intentLoadImage.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intentLoadImage,"Choose Images"),CHOOSE_IMAGES);
+                startActivityForResult(Intent.createChooser(intentLoadImage, "Choose Images"), CHOOSE_IMAGES);
             }
         });
         buttonNewProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intentNewProduct=new Intent(getContext(), NewProductActivity.class);
-                startActivityForResult(intentNewProduct,0);
+                Intent intent = new Intent(getContext(), NewOrderActivity.class);
+                startActivityForResult(intent, 999);
             }
         });
     }
+
+
 
     @Override
     public void onResume() {
@@ -73,5 +71,12 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        onStart();
+    }
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
     }
 }

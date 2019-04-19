@@ -36,13 +36,13 @@ public class ProductImagesAdapter extends RecyclerView.Adapter<ProductImagesAdap
         return new ProductImageHolder(
                 LayoutInflater
                         .from(viewGroup.getContext())
-                        .inflate(R.layout.product_image_holder, viewGroup, false));
+                        .inflate(R.layout.holder_product_image, viewGroup, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ProductImageHolder productImageHolder, int i) {
 
-        Log.d(TAG, "onBindViewHolder: " + String.valueOf(i));
+        Log.d(TAG, "onBindViewHolder: " + i);
 
         Picasso.get().load(images[i]).into(productImageHolder.mImageView);
 
@@ -65,7 +65,7 @@ public class ProductImagesAdapter extends RecyclerView.Adapter<ProductImagesAdap
 
             super(itemView);
             Log.d(TAG, "ProductImageHolder: ");
-            mImageView = (ImageView) itemView.findViewById(R.id.product_image);
+            mImageView = itemView.findViewById(R.id.product_image);
         }
 
 

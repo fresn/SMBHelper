@@ -17,34 +17,85 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.type.Date;
 
 import net.yimingma.smbhelper.Customer.Customer;
-import net.yimingma.smbhelper.SMB.Product;
+import net.yimingma.smbhelper.Order.Order;
+import net.yimingma.smbhelper.Product.Product;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
 public class SMBHelperBackgroundService extends Service {
 
+
     FirebaseFirestore db;
     FirebaseAuth firebaseAuth;
+    Set<UserStateChangeHandler> SMBUserStateChangeHandlers = new HashSet<>();
+    Set<ProductListeners> productListeners = new HashSet<ProductListeners>();
+    FirebaseUser me;
+    CollectionReference productsRef, customersRef, ordersRef;
+    DocumentReference userRoot;
+    boolean isInit = false;
 
     //event listeners
-
-
     private String TAG = "SMBHelperBackgroundService";
 
     public SMBHelperBackgroundService() {
 
         Log.d(TAG, "SMBHelperBackgroundService: service created");
-
         db = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
 
+        //listen to user login logout
+        firebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() != null && !isInit) {
 
+                    Log.d(TAG, "onAuthStateChanged: logedIn");
+                    init();
+
+                    for (UserStateChangeHandler userStateChangeHandler : SMBUserStateChangeHandlers) {
+                        userStateChangeHandler.onLogIn(me);
+                    }
+                } else {
+                    for (UserStateChangeHandler userStateChangeHandler : SMBUserStateChangeHandlers) {
+                        userStateChangeHandler.onSignOut();
+                    }
+                }
+            }
+        });
+
+
+    }
+
+    private void init() {
+        Log.d(TAG, "init: user is " + firebaseAuth.getCurrentUser().getEmail());
+        me = firebaseAuth.getCurrentUser();
+        assert me != null : "user is null";
+        assert me.getEmail() != null : "user email is null";
+        userRoot = db.collection("Users").document(me.getEmail());
+        productsRef = userRoot.collection("Products");
+        customersRef = userRoot.collection("Customers");
+        ordersRef = userRoot.collection("Orders");
+        isInit = true;
+    }
+
+    private void logout() {
+        Log.d(TAG, "logout: ");
+        firebaseAuth.signOut();
+        me = null;
+        userRoot = null;
+        productsRef = null;
+        customersRef = null;
+        ordersRef = null;
+        isInit = false;
     }
 
 
@@ -141,47 +192,168 @@ public class SMBHelperBackgroundService extends Service {
 
     //Binder class
     public class MyBind extends Binder implements FirebaseAuth.AuthStateListener {
-        Set<OnUserStateChangeListeners> userChangeListeners = new HashSet<OnUserStateChangeListeners>();
 
-        FirebaseUser me;
-        CollectionReference products, customers, orders;
-        DocumentReference userRoot;
-        boolean isInit = false;
+        List<UserStateChangeHandler> MyBindUserStateChangeHandler = new ArrayList<>();
+
+        boolean ifEventInitialized = false;
 
 
         public MyBind() {
-            firebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            Log.d(TAG, "MyBind: ");
+            SMBHelperBackgroundService.this.SMBUserStateChangeHandlers.add(new UserStateChangeHandler() {
                 @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    if (firebaseAuth.getCurrentUser() != null && !isInit) {
-                        init();
-                        Log.d(TAG, "onAuthStateChanged: logedIn");
-                        for (OnUserStateChangeListeners onUserStateChangeListeners : userChangeListeners) {
-                            onUserStateChangeListeners.onLogIn(me);
-                        }
+                public void onLogIn(FirebaseUser firebaseUser) {
+                    if (!ifEventInitialized) {
+                        initEvent();
+                    }
+                    for (UserStateChangeHandler userStateChangeHandler : MyBindUserStateChangeHandler) {
+                        Log.d(TAG, "onLogIn: MyBind");
+                        userStateChangeHandler.onLogIn(SMBHelperBackgroundService.this.me);
+                    }
+
+                }
+
+                @Override
+                public void onSignOut() {
+                    for (UserStateChangeHandler userStateChangeHandler : MyBindUserStateChangeHandler) {
+                        userStateChangeHandler.onSignOut();
+                        unInitEvent();
                     }
                 }
             });
+
         }
 
-        private void init() {
-            Log.d(TAG, "init: user is " + firebaseAuth.getCurrentUser().getEmail());
-            me = firebaseAuth.getCurrentUser();
-            assert me != null : "user is null";
-            assert me.getEmail() != null : "user email is null";
-            userRoot = db.collection("Users").document(me.getEmail());
-            products = userRoot.collection("Products");
-            customers = userRoot.collection("Customers");
-            orders = userRoot.collection("Orders");
+        void initEvent() {
+            Log.d(TAG, "initEvent: ");
 
-            isInit = true;
+            ifEventInitialized = true;
+
         }
 
+        void unInitEvent() {
+
+            ifEventInitialized = false;
+        }
+
+
+        public ListenerHolder newOrder(Order order) {
+            final ListenerHolder listenerHolder = new ListenerHolder();
+            ordersRef.document(order.OrderID).set(order)
+                    .addOnSuccessListener(
+                            new com.google.android.gms.tasks.OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    listenerHolder.success();
+                                }
+                            })
+                    .addOnFailureListener(
+                            new com.google.android.gms.tasks.OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    listenerHolder.failure();
+                                }
+                            }
+                    );
+            return listenerHolder;
+        }
+
+        public TypeListenerHolder<Order[]> requireOrders(Order.STATUS status) {
+            final TypeListenerHolder<Order[]> typeListenerHolder = new TypeListenerHolder<>();
+
+            boolean isClosed;
+            switch (status) {
+                case GOING:
+                    isClosed = false;
+                    break;
+                case CLOSED:
+                    isClosed = true;
+                    break;
+                default:
+                    isClosed = false;
+                    break;
+            }
+
+            ordersRef
+
+                    .whereEqualTo("isClosed", isClosed)
+                    .get()
+                    .addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            List<Order> orders = new ArrayList<>();
+                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+                                orders.add(documentSnapshot.toObject(Order.class));
+                            }
+                            typeListenerHolder.success(orders.toArray(new Order[queryDocumentSnapshots.getDocuments().size()]));
+                        }
+                    })
+                    .addOnFailureListener(new com.google.android.gms.tasks.OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            typeListenerHolder.failure();
+                        }
+                    });
+
+
+            return typeListenerHolder;
+        }
+
+        public TypeListenerHolder<Order[]> requireOrders(Date dateStart, Date dateEnd) {
+            final TypeListenerHolder<Order[]> typeListenerHolder = new TypeListenerHolder<Order[]>();
+            ordersRef.whereGreaterThan("createTime", dateStart).whereLessThan("createDate", dateEnd)
+                    .get()
+                    .addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            List<Order> orders = new ArrayList<>();
+                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+                                orders.add(documentSnapshot.toObject(Order.class));
+                            }
+                            typeListenerHolder.success(orders.toArray(new Order[orders.size()]));
+                        }
+                    })
+                    .addOnFailureListener(new com.google.android.gms.tasks.OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            typeListenerHolder.failure();
+                        }
+                    });
+            return typeListenerHolder;
+        }
+
+        public TypeListenerHolder<Product[]> requireProducts() {
+            final TypeListenerHolder<Product[]> typeListenerHolder = new TypeListenerHolder<>();
+            productsRef.get().addOnCompleteListener(new com.google.android.gms.tasks.OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            ArrayList<Product> products = new ArrayList<>();
+
+                            for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
+                                products.add(queryDocumentSnapshot.toObject(Product.class));
+                            }
+
+                            typeListenerHolder.success(products.toArray(new Product[task.getResult().size()]));
+                        } else {
+                            typeListenerHolder.success(null);
+                        }
+
+                    } else {
+                        typeListenerHolder.failure();
+                    }
+                }
+            });
+            return typeListenerHolder;
+        }
 
         public TypeListenerHolder<Customer[]> requireCustomers() {
             Log.d(TAG, "requireCustomers: ");
             final TypeListenerHolder<Customer[]> customerTypeListenerHolder = new TypeListenerHolder<Customer[]>();
-            customers.get()
+            customersRef.orderBy("timestamp")
+                    .get()
+
                     .addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot>() {
                         ArrayList<Customer> customers = new ArrayList<>();
 
@@ -194,7 +366,7 @@ public class SMBHelperBackgroundService extends Service {
                                     customers.add(documentSnapshot.toObject(Customer.class));
                                 }
                                 customerTypeListenerHolder.success(customers.toArray(new Customer[queryDocumentSnapshots.size()]));
-                            }else{
+                            } else {
                                 Log.d(TAG, "onSuccess: empty result");
                             }
                         }
@@ -202,7 +374,7 @@ public class SMBHelperBackgroundService extends Service {
                     new com.google.android.gms.tasks.OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            Log.d(TAG, "onComplete: "+task.isSuccessful());
+                            Log.d(TAG, "onComplete: " + task.isSuccessful());
                         }
                     }
             );
@@ -211,7 +383,7 @@ public class SMBHelperBackgroundService extends Service {
 
         public TypeListenerHolder<Customer> getCustomer(String id) {
             final TypeListenerHolder<Customer> customerTypeListenerHolder = new TypeListenerHolder<>();
-            customers.document(id).get().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<DocumentSnapshot>() {
+            customersRef.document(id).get().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     customerTypeListenerHolder.success(documentSnapshot.toObject(Customer.class));
@@ -222,7 +394,7 @@ public class SMBHelperBackgroundService extends Service {
 
         public ListenerHolder newCustomer(Customer customer) {
             final ListenerHolder listenerHolder = new ListenerHolder();
-            customers.add(customer).addOnCompleteListener(new com.google.android.gms.tasks.OnCompleteListener<DocumentReference>() {
+            customersRef.add(customer).addOnCompleteListener(new com.google.android.gms.tasks.OnCompleteListener<DocumentReference>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentReference> task) {
                     if (task.isSuccessful()) {
@@ -286,21 +458,17 @@ public class SMBHelperBackgroundService extends Service {
         }
 
         public void logOut() {
-            firebaseAuth.signOut();
+            logout();
         }
 
         public boolean isLogin() {
             return firebaseAuth.getCurrentUser() != null;
         }
 
-        public void addOnUserStateChangeListeners(OnUserStateChangeListeners onUserStateChangeListeners) {
-            userChangeListeners.add(onUserStateChangeListeners);
-        }
-
         public ListenerHolder newProduct(final Product product) {
             final ListenerHolder listenerHolder = new ListenerHolder();
 
-            products.document(product.getTitle()).set(product)
+            productsRef.document(product.getTitle()).set(product)
                     .addOnCompleteListener(
                             new com.google.android.gms.tasks.OnCompleteListener<Void>() {
                                 @Override
@@ -320,11 +488,10 @@ public class SMBHelperBackgroundService extends Service {
             return listenerHolder;
         }
 
-
         @Override
         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
             Log.d(TAG, "onAuthStateChanged: ");
-            for (OnUserStateChangeListeners listener : userChangeListeners) {
+            for (UserStateChangeHandler listener : SMBHelperBackgroundService.this.SMBUserStateChangeHandlers) {
                 if (firebaseAuth.getCurrentUser() != null) {
                     Log.d(TAG, "onAuthStateChanged: login");
                     listener.onLogIn(firebaseAuth.getCurrentUser());
@@ -333,6 +500,11 @@ public class SMBHelperBackgroundService extends Service {
                     listener.onSignOut();
                 }
             }
+        }
+
+
+        public void addOnUserStateChangeListeners(UserStateChangeHandler userStateChangeListener) {
+            SMBHelperBackgroundService.this.SMBUserStateChangeHandlers.add(userStateChangeListener);
         }
     }
 
@@ -415,29 +587,37 @@ public class SMBHelperBackgroundService extends Service {
     }
 
     public interface OnCompleteListener<T> {
-        public void onComplete(Boolean isSuccess);
+        void onComplete(Boolean isSuccess);
     }
 
     public interface OnTypeCompleteListener<T> {
-        public void onComplete(Boolean isSuccess, T data);
+        void onComplete(Boolean isSuccess, T data);
     }
 
     public interface OnTypeSuccessListener<T> {
-        public void onSuccess(T data);
+        void onSuccess(T data);
     }
 
     public interface OnSuccessListener {
-        public void onSuccess();
+        void onSuccess();
     }
 
     public interface OnFailureListener {
-        public void onFailure();
+        void onFailure();
     }
 
 
-    public interface OnUserStateChangeListeners {
-        public void onLogIn(FirebaseUser firebaseUser);
+    public interface UserStateChangeHandler {
+        void onLogIn(FirebaseUser firebaseUser);
 
-        public void onSignOut();
+        void onSignOut();
+    }
+
+    public interface ProductListeners {
+        void onProductAdded(Product product);
+
+        void onProductSold(Product product, Order order);
+
+        void onProductSoldOut(Product product);
     }
 }

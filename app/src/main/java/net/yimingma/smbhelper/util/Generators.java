@@ -1,7 +1,7 @@
 package net.yimingma.smbhelper.util;
 
 public class Generators {
-      static String getAlphaNumericString(int n)
+     public static String getAlphaNumericString(int n)
     {
 
         // chose a Character random from this String
@@ -28,8 +28,10 @@ public class Generators {
         return sb.toString();
     }
 
-    public static String getCustomerID(){
-          return String.valueOf(System.currentTimeMillis())+getAlphaNumericString(8);
+
+
+    public static String getID(){
+          return System.currentTimeMillis() +getAlphaNumericString(8);
     }
 
     static String CreateUID(){

@@ -8,6 +8,7 @@ import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 
 public class Utils {
+    static public final String[] months={"Jan.","Feb.","Mar.","Apr.","May.","Jun.","Jul.","Aug.","Sept.","Oct.","Nov.","Dec."};
     static public void startShakeByView(View view, float scaleSmall, float scaleLarge, float shakeDegrees, long duration) {
         //由小变大
         Animation scaleAnim = new ScaleAnimation(scaleSmall, scaleLarge, scaleSmall, scaleLarge);
@@ -37,4 +38,6 @@ public class Utils {
         view.setSelection(beforeChanged.length() );
 
     }
+
+
 }

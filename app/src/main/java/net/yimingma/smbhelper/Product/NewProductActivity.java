@@ -4,10 +4,10 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import net.yimingma.smbhelper.R;
-import net.yimingma.smbhelper.SMB.Product;
 import net.yimingma.smbhelper.service.SMBHelperBackgroundService;
 import net.yimingma.smbhelper.util.Utils;
 
@@ -72,14 +71,14 @@ public class NewProductActivity extends AppCompatActivity {
 
         images = new Uri[0];
         //find views
-        button_new_product_submit = (Button) findViewById(R.id.button_new_product_submit);
-        addImageButton = (ImageView) findViewById(R.id.add_image_button);
-        edit_text_new_product_inventory = (EditText) findViewById(R.id.edit_text_new_product_inventory);
-        edit_text_new_product_cost = (EditText) findViewById(R.id.edit_text_new_product_cost);
-        edit_text_new_product_tax = (EditText) findViewById(R.id.edit_text_new_product_tax);
-        edit_text_new_product_price = (EditText) findViewById(R.id.edit_text_new_product_price);
-        edit_text_new_product_title = (EditText) findViewById(R.id.edit_text_new_product_title);
-        edit_text_new_product_description = (EditText) findViewById(R.id.edit_text_new_product_description);
+        button_new_product_submit = findViewById(R.id.button_new_product_submit);
+        addImageButton = findViewById(R.id.add_image_button);
+        edit_text_new_product_inventory = findViewById(R.id.edit_text_new_product_inventory);
+        edit_text_new_product_cost = findViewById(R.id.edit_text_new_product_cost);
+        edit_text_new_product_tax = findViewById(R.id.edit_text_new_product_tax);
+        edit_text_new_product_price = findViewById(R.id.edit_text_new_product_price);
+        edit_text_new_product_title = findViewById(R.id.edit_text_new_product_title);
+        edit_text_new_product_description = findViewById(R.id.edit_text_new_product_description);
         //basic input check
         edit_text_new_product_price.addTextChangedListener(new TextWatcher() {
             String beforeChanged;
@@ -239,7 +238,7 @@ public class NewProductActivity extends AppCompatActivity {
         });
 
 
-        productImagesRecyclerView = (RecyclerView) findViewById(R.id.product_images_recycler_view);
+        productImagesRecyclerView = findViewById(R.id.product_images_recycler_view);
         productImagesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         productImagesAdapter = new ProductImagesAdapter(images);
         productImagesRecyclerView.setAdapter(productImagesAdapter);
@@ -261,7 +260,7 @@ public class NewProductActivity extends AppCompatActivity {
             Log.d(TAG, "onActivityResult: " + data.getData().toString());
         }
 
-        this.images = (Uri[]) localImages.toArray(new Uri[localImages.size()]);
+        this.images = localImages.toArray(new Uri[localImages.size()]);
 
 
         productImagesAdapter.updateDate(this.images);

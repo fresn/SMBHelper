@@ -44,7 +44,7 @@
             android:scrollbars="horizontal"
             app:layout_constraintStart_toEndOf="@+id/add_image_button"
             app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/product_image_holder" />
+            tools:listitem="@layout/holder_product_image" />
     </LinearLayout>
 
     <android.support.v7.widget.CardView

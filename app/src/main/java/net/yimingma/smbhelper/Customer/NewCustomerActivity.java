@@ -52,13 +52,13 @@ public class NewCustomerActivity extends AppCompatActivity {
         bindService(new Intent(this, SMBHelperBackgroundService.class), serviceConnection, BIND_AUTO_CREATE);
 
 
-        edit_text_new_customer_first_name = (EditText) findViewById(R.id.edit_text_new_customer_first_name);
-        edit_text_new_customer_last_name = (EditText) findViewById(R.id.edit_text_new_customer_last_name);
-        edit_text_new_customer_state = (EditText) findViewById(R.id.edit_text_new_customer_state);
-        edit_text_new_customer_country = (EditText) findViewById(R.id.edit_text_new_customer_country);
-        edit_text_new_customer_street = (EditText) findViewById(R.id.edit_text_new_customer_street);
-        button_create_customer = (Button) findViewById(R.id.button_new_customer_submit);
-        image_view_new_customer_back_icon = (ImageView) findViewById(R.id.image_view_new_customer_back_icon);
+        edit_text_new_customer_first_name = findViewById(R.id.edit_text_new_customer_first_name);
+        edit_text_new_customer_last_name = findViewById(R.id.edit_text_new_customer_last_name);
+        edit_text_new_customer_state = findViewById(R.id.edit_text_new_customer_state);
+        edit_text_new_customer_country = findViewById(R.id.edit_text_new_customer_country);
+        edit_text_new_customer_street = findViewById(R.id.edit_text_new_customer_street);
+        button_create_customer = findViewById(R.id.button_new_customer_submit);
+        image_view_new_customer_back_icon = findViewById(R.id.image_view_new_customer_back_icon);
 
 
         image_view_new_customer_back_icon.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +86,8 @@ public class NewCustomerActivity extends AppCompatActivity {
                         .addOnSuccessListener(new SMBHelperBackgroundService.OnSuccessListener() {
                             @Override
                             public void onSuccess() {
-
+                                Log.d(TAG, "onSuccess: ");
+                                finish();
                             }
                         })
                         .addOnFailureListener(new SMBHelperBackgroundService.OnFailureListener() {

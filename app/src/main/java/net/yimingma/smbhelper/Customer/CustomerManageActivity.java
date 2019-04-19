@@ -22,6 +22,8 @@ public class CustomerManageActivity extends AppCompatActivity {
     ImageView imageView_customer_add_icon;
     SMBHelperBackgroundService.MyBind myBind;
     RecyclerView recycler_view_customer_manage;
+    private final int NEW_CUSTOMER = 121;
+    private String TAG = "CustomerManageActivity";
 
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -36,9 +38,6 @@ public class CustomerManageActivity extends AppCompatActivity {
         }
     };
 
-    private final int NEW_CUSTOMER = 121;
-    private String TAG = "CustomerManageActivity";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
@@ -47,9 +46,9 @@ public class CustomerManageActivity extends AppCompatActivity {
 
         bindService(new Intent(this, SMBHelperBackgroundService.class), serviceConnection, BIND_AUTO_CREATE);
 
-
-        imageView_customer_add_icon = (ImageView) findViewById(R.id.imageView_customer_add_icon);
-        recycler_view_customer_manage= (RecyclerView) findViewById(R.id.recycler_view_customer_manage);
+        imageView_customer_add_icon = findViewById(R.id.imageView_customer_add_icon);
+        recycler_view_customer_manage = findViewById(R.id.recycler_view_customer_manage);
+        recycler_view_customer_manage.setLayoutManager(new LinearLayoutManager(this));
 
         imageView_customer_add_icon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,17 +57,13 @@ public class CustomerManageActivity extends AppCompatActivity {
                 startActivityForResult(newCustomerIntent, NEW_CUSTOMER);
             }
         });
-        recycler_view_customer_manage.setLayoutManager(new LinearLayoutManager(this));
-
-
 
     }
 
     @Override
     protected void onStart() {
         Log.d(TAG, "onStart: ");
-        if (myBind != null) {
-
+        if(myBind!=null){
             myBind.requireCustomers().addOnSuccessListener(new SMBHelperBackgroundService.OnTypeSuccessListener<Customer[]>() {
                 @Override
                 public void onSuccess(Customer[] data) {
@@ -76,10 +71,11 @@ public class CustomerManageActivity extends AppCompatActivity {
                         Log.d(TAG, "onSuccess: " + customer.getDisplayName());
                     }
                     recycler_view_customer_manage.setAdapter(new CustomersAdapter(data));
+
                 }
             });
-
         }
+
 
         super.onStart();
     }
@@ -87,7 +83,6 @@ public class CustomerManageActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop: ");
-        unbindService(serviceConnection);
         super.onStop();
     }
 
@@ -95,5 +90,11 @@ public class CustomerManageActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         Log.d(TAG, "onActivityResult: ");
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindService(serviceConnection);
+        super.onDestroy();
     }
 }

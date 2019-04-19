@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import net.yimingma.smbhelper.Product.ProductImagesAdapter;
+import com.squareup.picasso.Picasso;
+
 import net.yimingma.smbhelper.R;
+import net.yimingma.smbhelper.util.Generators;
 
 public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.CustomerItemHolder> {
     Customer[] customers;
@@ -18,6 +20,7 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.Cust
         this.customers = customers;
     }
 
+
     @NonNull
     @Override
     public CustomerItemHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -25,13 +28,16 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.Cust
         return new CustomerItemHolder(
                 LayoutInflater
                         .from(viewGroup.getContext())
-                        .inflate(R.layout.customer_item_holder, viewGroup, false));
+                        .inflate(R.layout.holder_customer_item, viewGroup, false));
 
     }
 
     @Override
     public void onBindViewHolder(@NonNull CustomerItemHolder customerItemHolder, int i) {
         customerItemHolder.text_view_customer_manage_holder_customer_name.setText(customers[i].getDisplayName());
+        Picasso.get()
+                .load("https://api.adorable.io/avatars/285/"+ Generators.getAlphaNumericString(5)+".png")
+                .into(customerItemHolder.image_view_customer_avatar);
 
     }
 

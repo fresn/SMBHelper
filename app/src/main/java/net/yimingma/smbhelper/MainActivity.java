@@ -31,6 +31,8 @@ import net.yimingma.smbhelper.service.SMBHelperBackgroundService;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
+    static boolean activityRunning=false;
+
     String TAG = "MainActivity";
     Point mPoint;
     FrameLayout mFrameLayout;
@@ -46,11 +48,27 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected: ");
             myServiceBind = (SMBHelperBackgroundService.MyBind) service;
-            onStart();
+            myServiceBind.addOnUserStateChangeListeners(new SMBHelperBackgroundService.UserStateChangeHandler() {
+                @Override
+                public void onLogIn(FirebaseUser firebaseUser) {
+                    if(activityRunning){
+                        onStart();
+                    }
+                }
+
+                @Override
+                public void onSignOut() {
+                    if (activityRunning){
+                      onStart();
+                    }
+                }
+            });
+            onResume();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            myServiceBind=null;
             Log.d(TAG, "onServiceDisconnected: ");
         }
     };
@@ -111,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 Log.d(TAG, "onOptionsItemSelected: logout");
                 myServiceBind.logOut();
                 bottomNavigationView.setSelectedItemId(R.id.navigation_dashboard);
-                onStart();
+                onResume();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -124,26 +142,27 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Intent serviceIntent = new Intent(this, SMBHelperBackgroundService.class);
         serviceIntent.putExtra("from", this.getClass().toString());
         startService(serviceIntent);
-        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
 
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
-        mFrameLayout = (FrameLayout) findViewById(R.id.main_content_layout);
+
+        bottomNavigationView = findViewById(R.id.navigation);
+        mFrameLayout = findViewById(R.id.main_content_layout);
 
         //get scream size
         mPoint = new Point();
         getWindowManager().getDefaultDisplay().getSize(mPoint);
-        mToastYOffset = (int) (mPoint.y / 5);
+        mToastYOffset = mPoint.y / 5;
 
         //init Fragment
         mFragmentManager = getSupportFragmentManager();
 
         //setupActionBar
-        mToolbar = (Toolbar) findViewById(R.id.toolbar_main);
+        mToolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(mToolbar);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         bottomNavigationView.setSelectedItemId(R.id.navigation_dashboard);
 
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
 
     }
 
@@ -151,20 +170,20 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     protected void onStart() {
         Log.d(TAG, "onStart: ");
 
-        //mFragmentManager.beginTransaction().add(R.id.main_content_layout,new DashboardUserGuideFragment(),"GuideFragment").commit();
-
-        bottomNavigationView.setSelectedItemId(bottomNavigationView.getSelectedItemId());
         super.onStart();
     }
 
     @Override
     protected void onPause() {
+        activityRunning=false;
         Log.d(TAG, "onPause: ");
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        activityRunning=true;
+        bottomNavigationView.setSelectedItemId(bottomNavigationView.getSelectedItemId());
         Log.d(TAG, "onResume: ");
 
 
@@ -174,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: ");
+        unbindService(serviceConnection);
         super.onDestroy();
     }
 
@@ -237,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     lunchSettingScream();
                     return true;
                 } else {
-                    Toast.makeText(getApplicationContext(),"Please login",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Please login", Toast.LENGTH_LONG).show();
                     return false;
                 }
 
@@ -253,8 +273,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 if (myServiceBind != null && myServiceBind.isLogin()) {
                     lunchProcessScream();
                     return true;
-                }else{
-                    Toast.makeText(getApplicationContext(),"Please login",Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please login", Toast.LENGTH_LONG).show();
                     return false;
                 }
         }

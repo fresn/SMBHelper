@@ -14,8 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Product.NewProductActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
+        <activity android:name=".Order.NewOrderActivity"></activity>
+        <activity android:name=".Product.ProductManageActivity" />
+        <activity
+            android:name=".Product.NewProductActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".User.LoginActivity" />
         <activity android:name=".User.CreateUserActivity" />
         <activity

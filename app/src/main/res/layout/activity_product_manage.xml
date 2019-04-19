@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Customer.CustomerManageActivity">
+    tools:context=".Product.ProductManageActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_customer"
+        android:id="@+id/toolbar_product_manage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
@@ -18,34 +18,23 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView_customer_add_icon"
+        android:id="@+id/image_view_add_icon"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginEnd="16dp"
-        android:contentDescription="@string/addcustomericon"
-        app:layout_constraintBottom_toBottomOf="@+id/toolbar_customer"
-        app:layout_constraintEnd_toEndOf="@+id/toolbar_customer"
-        app:layout_constraintTop_toTopOf="@+id/toolbar_customer"
+        android:contentDescription="@string/add_icon"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar_product_manage"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar_product_manage"
+        app:layout_constraintTop_toTopOf="@id/toolbar_product_manage"
         app:srcCompat="@drawable/ic_add_icon" />
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout"
-        android:layout_width="match_parent"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_product_manage"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_customer">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view_customer_manage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/holder_customer_item" />
-    </android.support.constraint.ConstraintLayout>
-
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_product_manage"
+        tools:listitem="@layout/holder_product_item" />
 </android.support.constraint.ConstraintLayout>

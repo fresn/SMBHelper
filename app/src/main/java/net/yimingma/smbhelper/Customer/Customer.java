@@ -9,6 +9,7 @@ public class Customer {
     private String TAG = "Customer";
 
     public String firstName, lastName,state,country, street,timestamp;
+    public String customerId;
 
     String avatarUrl;
     public Customer(){
@@ -31,6 +32,7 @@ public class Customer {
         Log.d(TAG, "Customer: ");
         this.lastName = lastName;
         timestamp=String.valueOf(System.currentTimeMillis());
+        this.customerId= Generators.getID();
     }
 
     public String getDisplayName() {

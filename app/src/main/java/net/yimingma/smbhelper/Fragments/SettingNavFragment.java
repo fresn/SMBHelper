@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import net.yimingma.smbhelper.Customer.CustomerManageActivity;
+import net.yimingma.smbhelper.Product.ProductManageActivity;
 import net.yimingma.smbhelper.R;
 
 
@@ -22,7 +23,7 @@ import net.yimingma.smbhelper.R;
  */
 public class SettingNavFragment extends Fragment {
 
-    private Button mBtnCustomer;
+    private Button mBtnCustomer,mBtnProduct;
 
     private String TAG="SettingNavFragment";
 
@@ -46,6 +47,7 @@ public class SettingNavFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         //init btn
         mBtnCustomer=view.findViewById(R.id.button_setting_customer);
+        mBtnProduct=view.findViewById(R.id.button_setting_product);
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -56,6 +58,14 @@ public class SettingNavFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(getContext(), CustomerManageActivity.class);
+                startActivityForResult(intent,0);
+            }
+        });
+
+        mBtnProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getContext(), ProductManageActivity.class);
                 startActivityForResult(intent,0);
             }
         });
@@ -75,4 +85,9 @@ public class SettingNavFragment extends Fragment {
         super.onDestroy();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult: ");
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
